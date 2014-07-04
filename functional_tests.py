@@ -31,7 +31,7 @@ class NewVisiterTest(unittest.TestCase):
 
         # She types "Finish Khan Academy intro to programming." into a
         # text box.
-        inputbox.send_keys('Finish Khan Academy intro to programming')
+        inputbox.send_keys('Finish Khan Academy intro to programming.')
 
         # When she hits enter, the page updates, and now the page lists:
         # "1: Finish Khan Academy intro to programming." as an item in a
@@ -40,20 +40,29 @@ class NewVisiterTest(unittest.TestCase):
 
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-                any(row.text == '1: Finish Khan Academy intro to programming'
-                    for row in rows), "New to-do item did not appear in table"
-        )
+
+        self.assertIn('1: Finish Khan Academy intro to programming.',
+                      [row.text for row in rows])
 
         # There is still a text box inviting her to add another item. She
         # enters: "Complete Code Academy jQuery course."
-        self.fail('Finish the test!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Complete Code Academy jQuery course.')
+        inputbox.send_keys(Keys.ENTER)
 
         # The page updates again, and now shows both items on her list.
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+
+        self.assertIn('1: Finish Khan Academy intro to programming.',
+                      [row.text for row in rows])
+        self.assertIn('2: Complete Code Academy jQuary course.',
+                      [row.text for row in rows])
 
         # Jocelyn wonders whether the site will remember her list. Then she
         # sees that the site has generated a unique URL for her site -- there
         # is some explanatory text to that effect.
+        self.fail('Finish the test!')
 
         # She visits that URL - her to-do list is still there.
 
