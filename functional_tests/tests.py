@@ -1,9 +1,9 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import unittest
 
 
-class NewVisiterTest(unittest.TestCase):
+class NewVisiterTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -20,7 +20,7 @@ class NewVisiterTest(unittest.TestCase):
     def test_can_start_list_and_retrieve_later(self):
         # Jocelyn has heard we are writing a cool new online to-do app.
         # She goes to check out its homepage...
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         # She notices the page title and header mention to-do lists.
         self.assertIn('To-Do', self.browser.title)
@@ -29,10 +29,8 @@ class NewVisiterTest(unittest.TestCase):
 
         # She is invited to enter a to-do item straight away.
         inputbox = self.browser.find_element_by_id('id_new_item')
-        self.assertEqual(
-                inputbox.get_attribute('placeholder'),
-                'Enter a to-do item'
-        )
+        self.assertEqual(inputbox.get_attribute('placeholder'),
+                         'Enter a to-do item')
 
         # She types "Finish Khan Academy intro to programming." into a
         # text box.
@@ -43,7 +41,7 @@ class NewVisiterTest(unittest.TestCase):
         # "1: Finish Khan Academy intro to programming." as an item in a
         # to-do list.
         inputbox.send_keys(Keys.ENTER)
-        self.check_for_row_in_list_table('1: {0}'.format(first_text)) 
+        self.check_for_row_in_list_table('1: {0}'.format(first_text))
 
         # There is still a text box inviting her to add another item. She
         # enters: "Complete Code Academy jQuery course."
@@ -53,9 +51,8 @@ class NewVisiterTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
 
         # The page updates again, and now shows both items on her list.
-        self.check_for_row_in_list_table('1: {0}'.format(first_text)) 
-        self.check_for_row_in_list_table('2: {0}'.format(second_text)) 
-
+        self.check_for_row_in_list_table('1: {0}'.format(first_text))
+        self.check_for_row_in_list_table('2: {0}'.format(second_text))
 
         # Jocelyn wonders whether the site will remember her list. Then she
         # sees that the site has generated a unique URL for her site -- there
@@ -63,9 +60,4 @@ class NewVisiterTest(unittest.TestCase):
         self.fail('Finish the test!')
 
         # She visits that URL - her to-do list is still there.
-
         # Satisfied, she goes back to sleep.
-
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
