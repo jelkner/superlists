@@ -41,6 +41,8 @@ class NewVisiterTest(LiveServerTestCase):
         # "1: Finish Khan Academy intro to programming." as an item in a
         # to-do list.
         inputbox.send_keys(Keys.ENTER)
+        jocelyn_list_url = self.browser.current_url
+        self.assertRegex(jocelyn_list_url, '/lists.+')
         self.check_for_row_in_list_table('1: {0}'.format(first_text))
 
         # There is still a text box inviting her to add another item. She
@@ -54,10 +56,33 @@ class NewVisiterTest(LiveServerTestCase):
         self.check_for_row_in_list_table('1: {0}'.format(first_text))
         self.check_for_row_in_list_table('2: {0}'.format(second_text))
 
-        # Jocelyn wonders whether the site will remember her list. Then she
-        # sees that the site has generated a unique URL for her site -- there
-        # is some explanatory text to that effect.
-        self.fail('Finish the test!')
+        # Now a new user, Mayra, comes along to the site.
 
-        # She visits that URL - her to-do list is still there.
-        # Satisfied, she goes back to sleep.
+        ## We use a new browser session to make sure that no information
+        ## of Jocelyn's is coming through from cookies etc.
+        self.browser.quit()
+        self.browser = webdriver.Firefox()
+
+        # Mayra visits the home page. There is no sign of Jocelyn's list
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn(first_text, page_text)
+        self.assertNotIn(second_text, page_text)
+
+        # Mayra starts a new list by entering a new item.
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        third_text = 'Arrange Fall 2014 work and school schedule.'
+        inputbox.send_keys(third_text)
+        inputbox.send_keys(Keys.ENTER)
+
+        # Mayra gets her own unique URL
+        mayra_list_url = self.browser.current_url
+        self.assertRegex(mayra_list_url, '/lists/.+')
+        self.assertNotEqual(jocelyn_list_url, mayra_list_url)
+
+        # Again, there is no trace of Jocelyn's list
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn(first_text, page_text)
+        self.assertNotIn(second_text, page_text)
+
+        # Satisfied, they both go back to  sleep...
